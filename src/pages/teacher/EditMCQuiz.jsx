@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useToast } from '../../contexts/ToastContext';
-import api    from '../../hooks/useApi';
-import Button from '../../components/ui/Button';
-import Input  from '../../components/ui/Input';
+import api            from '../../hooks/useApi';
+import Button         from '../../components/ui/Button';
+import Input          from '../../components/ui/Input';
+import CsvImportModal from '../../components/quiz/CsvImportModal';
 
 const LETTERS = ['A', 'B', 'C', 'D'];
 
@@ -30,7 +31,8 @@ export default function EditMCQuiz({ quiz }) {
         Array.isArray(raw) ? raw : []
     );
 
-    const [saving, setSaving] = useState(false);
+    const [saving,    setSaving]    = useState(false);
+    const [importing, setImporting] = useState(false);
 
     function updateMeta(key, val) { setMeta(prev => ({ ...prev, [key]: val })); }
 
@@ -53,6 +55,15 @@ export default function EditMCQuiz({ quiz }) {
 
     function removeQuestion(idx) {
         if (questions.length > 1) setQuestions(prev => prev.filter((_, i) => i !== idx));
+    }
+
+    /**
+     * Replace the current question list with CSV-parsed questions.
+     * @param {{ question: string, answers: string[], correctAnswer: number }[]} importedQuestions
+     */
+    function handleImport(importedQuestions) {
+        setQuestions(importedQuestions);
+        toast.success(`${importedQuestions.length} question${importedQuestions.length !== 1 ? 's' : ''} imported — review and save when ready.`);
     }
 
     async function handleSave() {
@@ -117,7 +128,10 @@ export default function EditMCQuiz({ quiz }) {
 
                 <div className="editor-toolbar">
                     <h2 style={{ fontSize: 'var(--text-xl)', fontWeight: 700 }}>Questions</h2>
-                    <Button variant="secondary" onClick={addQuestion}>+ Add question</Button>
+                    <div className="flex gap-2">
+                        <Button variant="ghost" size="sm" onClick={() => setImporting(true)}>Import CSV</Button>
+                        <Button variant="secondary" onClick={addQuestion}>+ Add question</Button>
+                    </div>
                 </div>
 
                 <div className="editor-questions">
@@ -148,6 +162,13 @@ export default function EditMCQuiz({ quiz }) {
                     ))}
                 </div>
             </main>
+
+            <CsvImportModal
+                open={importing}
+                onClose={() => setImporting(false)}
+                quizType={2}
+                onImport={handleImport}
+            />
         </div>
     );
 }

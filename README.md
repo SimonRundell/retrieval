@@ -291,6 +291,55 @@ Upload the contents of `dist/` and the entire `api/` directory to your web host.
 
 ---
 
+## Bulk CSV Import
+
+Teachers can import questions in bulk from an Excel-exported CSV file. The **Import CSV** button appears on the edit page for both quiz types, after the quiz has been saved. The import replaces all existing questions; a preview table with per-row validation is shown before anything is committed.
+
+Save from Excel as **CSV UTF-8 (Comma delimited) (.csv)**. The first row must be the column headings shown below (column name matching is case-insensitive).
+
+### Match Definitions CSV format
+
+| Term | Definition |
+| --- | --- |
+| Mitosis | Cell division producing two identical daughter cells |
+| Meiosis | Cell division producing four genetically unique gametes |
+
+Imported pairs form a flat list. The editor auto-groups them into sets of four.
+
+### Multiple Choice CSV format
+
+| Question | A | B | C | D | Correct |
+| --- | --- | --- | --- | --- | --- |
+| What is the capital of France? | London | Paris | Berlin | Madrid | B |
+| What is H2O? | Salt | Sugar | Water | Oxygen | C |
+
+`Correct` must contain the letter A, B, C, or D corresponding to the correct answer.
+
+---
+
+## Changelog
+
+### 0.1.1 — 2026-06-29
+
+- Added `CsvImportModal` component: RFC-4180 CSV parser, column format guide with example rows, scrollable preview table with per-row error reporting, and error-count badge.
+- Wired **Import CSV** button into `EditMatchQuiz` (card header) and `EditMCQuiz` (editor toolbar).
+- Match import: flat list of Term/Definition pairs, auto-grouped into sets of four in the editor.
+- Multiple Choice import: Question, A, B, C, D, Correct columns; `Correct` letter mapped to zero-based `correctAnswer` index.
+
+### 0.1.0 — 2026-06-29
+
+Initial release.
+
+- Teacher authentication (JWT, 24-hour expiry, MD5-hashed passwords).
+- Teacher dashboard: list all quizzes, copy quiz code, launch timed live session.
+- Create and edit Match Definitions quizzes (drag-and-drop, sets of four pairs).
+- Create and edit Multiple Choice quizzes (four options, letter-keyed correct answer).
+- Student entry page (name + quiz code) and quiz player with server-synced countdown timer.
+- Live projector/leaderboard view (WatchQuiz), polling every three seconds.
+- Score modal on quiz completion.
+
+---
+
 ## License
 
 Copyright (c) 2026 Simon Rundell
