@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from '../contexts/AuthContext';
 import { ToastProvider } from '../contexts/ToastContext';
 import ProtectedRoute from './ProtectedRoute';
+import CMFloatAd from '../cmFloatAd';
 
 import StudentEntry      from '../pages/student/StudentEntry';
 import QuizPlayer        from '../pages/student/QuizPlayer';
@@ -49,6 +50,7 @@ export default function AppRouter() {
                         {/* Fallback */}
                         <Route path="*" element={<Navigate to="/" replace />} />
                     </Routes>
+                    <CMFloatAd />
                 </ToastProvider>
             </AuthProvider>
         </BrowserRouter>

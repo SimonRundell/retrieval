@@ -5,6 +5,7 @@ api/server.log
 
 # Local configuration — contains DB credentials and JWT secret
 api/.config.json
+api/.live.config.json
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
