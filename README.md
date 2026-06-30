@@ -317,7 +317,24 @@ Imported pairs form a flat list. The editor auto-groups them into sets of four.
 
 ---
 
+## Answer Review
+
+After a student completes a quiz, the score modal displays a full question review below the score and feedback message.
+
+**Multiple Choice** — every question is listed in order. A green left border and ✓ mark indicates a correct answer; red and ✗ marks an incorrect one. For wrong answers, the student's choice is shown in red above the correct answer, so they can identify exactly where they went wrong.
+
+**Match Definitions** — all term → definition pairs from every set are listed as a two-column revision reference. Because the game requires every pair to be matched correctly before moving on, all entries are always shown; the hint "Cover one column and test yourself" encourages active recall after the quiz.
+
+---
+
 ## Changelog
+
+### 0.1.2 — 2026-06-30
+
+- **Answer review on score screen.** After completing a quiz, students see a full question review below their score. Multiple Choice: each question listed with a ✓ or ✗, the student's wrong answer highlighted in red, and the correct answer shown. Match Definitions: all term → definition pairs displayed as a revision reference. The modal widens automatically when review items are present.
+- **Leaderboard clear option.** The launch session dialog now offers two choices: *Start fresh* (deletes all existing scores for the quiz before the session begins, the default) or *Keep existing scores* (new results are appended to the current leaderboard — useful when teaching the same quiz to multiple groups). `createSession.php` handles the `clearScores` flag and performs the delete server-side.
+- **Prominent quiz code on the Watch screen.** The code is now displayed in large monospace type in the centre of the leaderboard header, with the prompt "Enter this code in the Retrieval app:", making it readable from the back of a classroom.
+- **Clipboard error handling.** The copy-code chip on the dashboard now shows an error toast if the Clipboard API is unavailable (e.g. on plain HTTP), rather than failing silently.
 
 ### 0.1.1 — 2026-06-29
 

@@ -30,9 +30,10 @@ export default function TeacherDashboard() {
     const [quizzes, setQuizzes] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    const [watchModal, setWatchModal]   = useState(null);
-    const [duration,   setDuration]     = useState('10');
-    const [launching,  setLaunching]    = useState(false);
+    const [watchModal,   setWatchModal]   = useState(null);
+    const [duration,     setDuration]     = useState('10');
+    const [clearScores,  setClearScores]  = useState(true);
+    const [launching,    setLaunching]    = useState(false);
 
     useEffect(() => {
         api.post('/getAllQuizzes.php', {})
@@ -42,7 +43,9 @@ export default function TeacherDashboard() {
     }, []);
 
     function copyCode(code) {
-        navigator.clipboard.writeText(code).then(() => toast.success(`Code "${code}" copied!`));
+        navigator.clipboard.writeText(code)
+            .then(() => toast.success(`Code "${code}" copied!`))
+            .catch(() => toast.error('Could not access clipboard — please copy the code manually.'));
     }
 
     async function launchSession() {
@@ -50,8 +53,9 @@ export default function TeacherDashboard() {
         const mins = parseInt(duration, 10) || 10;
         try {
             await api.post('/createSession.php', {
-                quizCode:    watchModal.quizCode,
+                quizCode:     watchModal.quizCode,
                 durationSecs: mins * 60,
+                clearScores,
             });
             toast.success('Session started!');
             navigate(`/teacher/quiz/watch/${watchModal.quizCode}`);
@@ -102,7 +106,7 @@ export default function TeacherDashboard() {
                     <Button
                         size="sm"
                         variant="ghost"
-                        onClick={() => { setWatchModal(q); setDuration('10'); }}
+                        onClick={() => { setWatchModal(q); setDuration('10'); setClearScores(true); }}
                     >
                         📺 Launch live session
                     </Button>
@@ -175,6 +179,35 @@ export default function TeacherDashboard() {
                     value={duration}
                     onChange={e => setDuration(e.target.value)}
                 />
+                <div className="form-group" style={{ marginTop: 4 }}>
+                    <label className="form-label">Leaderboard</label>
+                    <div className="launch-option-group">
+                        <label className={`launch-option${clearScores ? ' launch-option--selected' : ''}`}>
+                            <input
+                                type="radio"
+                                name="clearScores"
+                                checked={clearScores}
+                                onChange={() => setClearScores(true)}
+                            />
+                            <div>
+                                <span className="launch-option-title">Start fresh</span>
+                                <span className="launch-option-desc">Remove all previous scores for this quiz before the session begins.</span>
+                            </div>
+                        </label>
+                        <label className={`launch-option${!clearScores ? ' launch-option--selected' : ''}`}>
+                            <input
+                                type="radio"
+                                name="clearScores"
+                                checked={!clearScores}
+                                onChange={() => setClearScores(false)}
+                            />
+                            <div>
+                                <span className="launch-option-title">Keep existing scores</span>
+                                <span className="launch-option-desc">New results are added alongside the current leaderboard — useful for multiple groups.</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
             </Modal>
         </div>
     );

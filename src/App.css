@@ -868,6 +868,121 @@ img { max-width: 100%; display: block; }
 }
 
 /* =========================================================
+   SCORE REVIEW
+   ========================================================= */
+.score-review {
+  border-top: 1px solid var(--gray-200);
+  padding: var(--space-5) var(--space-6) var(--space-6);
+}
+
+.score-review-title {
+  font-size: var(--text-base);
+  font-weight: 700;
+  color: var(--gray-800);
+  margin-bottom: var(--space-2);
+}
+
+.score-review-hint {
+  font-size: var(--text-xs);
+  color: var(--gray-500);
+  margin-bottom: var(--space-4);
+}
+
+.score-review-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* MC items */
+.score-review-item {
+  border-radius: var(--radius);
+  padding: var(--space-3) var(--space-4);
+  border-left: 4px solid;
+}
+
+.score-review-item--correct {
+  background: var(--success-light);
+  border-color: var(--success);
+}
+
+.score-review-item--wrong {
+  background: var(--error-light);
+  border-color: var(--error);
+}
+
+.score-review-q {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  margin-bottom: var(--space-1);
+}
+
+.score-review-icon {
+  font-weight: 700;
+  font-size: var(--text-sm);
+  flex-shrink: 0;
+  line-height: 1.5;
+}
+
+.score-review-item--correct .score-review-icon { color: var(--success); }
+.score-review-item--wrong   .score-review-icon { color: var(--error); }
+
+.score-review-question {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--gray-800);
+  line-height: 1.5;
+}
+
+.score-review-answers {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-left: calc(var(--space-2) + 14px);
+}
+
+.score-review-student {
+  font-size: var(--text-xs);
+  color: var(--error);
+}
+
+.score-review-correct {
+  font-size: var(--text-xs);
+  color: var(--gray-600);
+}
+
+/* Match items */
+.score-review-item--match {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  background: var(--gray-50);
+  border: 1px solid var(--gray-200);
+  border-left-width: 1px;
+  padding: var(--space-2) var(--space-4);
+}
+
+.score-review-term {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--gray-800);
+  flex: 0 0 auto;
+  min-width: 120px;
+}
+
+.score-review-arrow {
+  color: var(--gray-400);
+  flex-shrink: 0;
+}
+
+.score-review-definition {
+  font-size: var(--text-sm);
+  color: var(--gray-600);
+  flex: 1;
+}
+
+/* =========================================================
    TIMER
    ========================================================= */
 .quiz-timer {
@@ -937,6 +1052,78 @@ img { max-width: 100%; display: block; }
 .watch-status { font-size: var(--text-sm); color: rgba(255,255,255,0.5); }
 .watch-status--done { color: #6ee7b7; font-weight: 600; }
 .watch-empty { text-align: center; padding: var(--space-16); color: rgba(255,255,255,0.4); font-size: var(--text-lg); }
+
+.watch-code-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: var(--radius-lg);
+  padding: var(--space-3) var(--space-8);
+}
+
+.watch-code-prompt {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: rgba(255,255,255,0.5);
+}
+
+.watch-code-value {
+  font-family: var(--font-mono);
+  font-size: var(--text-3xl);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--white);
+}
+
+/* =========================================================
+   LAUNCH SESSION — OPTION GROUP
+   ========================================================= */
+.launch-option-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.launch-option {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: border-color var(--transition), background var(--transition);
+  background: var(--white);
+}
+
+.launch-option:hover { border-color: var(--primary); background: var(--primary-light); }
+
+.launch-option--selected {
+  border-color: var(--primary);
+  background: var(--primary-light);
+}
+
+.launch-option input[type="radio"] { margin-top: 2px; flex-shrink: 0; accent-color: var(--primary); }
+
+.launch-option-title {
+  display: block;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--gray-800);
+}
+
+.launch-option-desc {
+  display: block;
+  font-size: var(--text-xs);
+  color: var(--gray-500);
+  margin-top: 2px;
+  line-height: 1.5;
+}
 
 /* =========================================================
    CSV IMPORT MODAL

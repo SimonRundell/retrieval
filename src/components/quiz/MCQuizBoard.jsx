@@ -14,10 +14,11 @@ export default function MCQuizBoard({ quiz, studentName, quizCode, timedOut, tim
         ? JSON.parse(quiz.quizData)
         : quiz.quizData;
 
-    const [index,    setIndex]    = useState(0);
-    const [score,    setScore]    = useState(0);
-    const [chosen,   setChosen]   = useState(null);
+    const [index,     setIndex]    = useState(0);
+    const [score,     setScore]    = useState(0);
+    const [chosen,    setChosen]   = useState(null);
     const [showScore, setShowScore] = useState(false);
+    const [history,   setHistory]  = useState([]);
 
     useEffect(() => {
         if (timedOut && !showScore) submitQuiz(score);
@@ -33,10 +34,18 @@ export default function MCQuizBoard({ quiz, studentName, quizCode, timedOut, tim
     function handleAnswer(answerIdx) {
         if (chosen !== null) return;
         setChosen(answerIdx);
-        const q = questions[index];
-        const correct = answerIdx === q.correctAnswer;
-        const newScore = correct ? score + 1 : score;
+        const q         = questions[index];
+        const correct   = answerIdx === q.correctAnswer;
+        const newScore  = correct ? score + 1 : score;
         if (correct) setScore(newScore);
+
+        setHistory(prev => [...prev, {
+            type:          'mc',
+            question:      q.question,
+            correctAnswer: q.answers[q.correctAnswer],
+            studentAnswer: q.answers[answerIdx],
+            wasCorrect:    correct,
+        }]);
 
         setTimeout(() => {
             setChosen(null);
@@ -103,7 +112,8 @@ export default function MCQuizBoard({ quiz, studentName, quizCode, timedOut, tim
                 score={score}
                 total={questions.length}
                 quizName={quiz.quizName}
-                onPlayAgain={() => { setShowScore(false); setIndex(0); setScore(0); setChosen(null); }}
+                reviewItems={history}
+                onPlayAgain={() => { setShowScore(false); setIndex(0); setScore(0); setChosen(null); setHistory([]); }}
                 onExit={onExit}
             />
         </div>

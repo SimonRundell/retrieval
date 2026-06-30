@@ -235,6 +235,13 @@ export default function MatchQuizBoard({ quiz, studentName, quizCode, timedOut, 
                 score={score}
                 total={totalQ}
                 quizName={quiz.quizName}
+                reviewItems={(quizData.QuestionSets ?? []).flatMap(s =>
+                    (s.QuestionAnswerPairs ?? []).map(p => ({
+                        type:     'match',
+                        question: p.Question,
+                        answer:   p.Answer,
+                    }))
+                )}
                 onPlayAgain={() => { setShowScore(false); setScore(0); setTotalAnswered(0); loadSet(0); }}
                 onExit={onExit}
             />

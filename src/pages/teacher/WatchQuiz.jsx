@@ -55,10 +55,15 @@ export default function WatchQuiz() {
                 <div>
                     <div className="watch-title">📺 {quizName || quizCode}</div>
                     <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: 'var(--text-sm)', marginTop: 4 }}>
-                        Code: <strong style={{ color: 'rgba(255,255,255,0.8)' }}>{quizCode}</strong>
-                        &nbsp;· {students.length} student{students.length !== 1 ? 's' : ''} active
+                        {students.length} student{students.length !== 1 ? 's' : ''} active
                     </div>
                 </div>
+
+                <div className="watch-code-box">
+                    <span className="watch-code-prompt">Enter this code in the Retrieval app:</span>
+                    <span className="watch-code-value">{quizCode}</span>
+                </div>
+
                 <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
                     {session && (
                         <QuizTimer
