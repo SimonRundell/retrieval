@@ -3,7 +3,7 @@
  * getLogin.php — authenticates a teacher and returns a JWT.
  *
  * POST { email, passwordHash }
- * Returns { token, teacher: { id, studentName, email } } on success.
+ * Returns { token, teacher: { id, studentName, email, admin } } on success.
  * Only teacher accounts (teacher = 1) may log in via this endpoint.
  *
  * @license CC BY-NC-SA 4.0 — Simon Rundell / CodeMonkey Design Ltd. 2025
@@ -11,7 +11,7 @@
 include 'setup.php';
 
 $stmt = $mysqli->prepare(
-    "SELECT id, studentName, email, teacher FROM tbluser WHERE email = ? AND passwordHash = ? AND teacher = 1"
+    "SELECT id, studentName, email, teacher, admin FROM tbluser WHERE email = ? AND passwordHash = ? AND teacher = 1"
 );
 
 if (!$stmt) {
@@ -38,6 +38,7 @@ $token = generateJWT(
     [
         'userId'  => $user['id'],
         'teacher' => 1,
+        'admin'   => (int)$user['admin'],
         'name'    => $user['studentName'],
         'exp'     => time() + 86400,
     ],
@@ -49,8 +50,9 @@ log_info("Teacher login: " . $user['email']);
 send_response([
     'token'   => $token,
     'teacher' => [
-        'id'   => $user['id'],
-        'name' => $user['studentName'],
+        'id'    => $user['id'],
+        'name'  => $user['studentName'],
         'email' => $user['email'],
+        'admin' => (bool)$user['admin'],
     ],
 ], 200);

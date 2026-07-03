@@ -1,16 +1,16 @@
 <?php
 /**
- * insertUser.php
- * Registers a new student user account.
+ * adminAddUser.php — creates a new user account. Admin JWT required.
  *
- * Expects POST JSON: { email, passwordHash, studentName, schoolName }
- * Returns 409 if the email is already registered, 200 on success.
+ * POST { email, passwordHash, studentName, schoolName, admin, teacher }
+ * Returns 409 if the email is already registered.
  *
  * @license CC BY-NC-SA 4.0 — Simon Rundell / CodeMonkey Design Ltd. 2025
  */
 include 'setup.php';
 
-// Reject duplicate emails
+requireAdmin();
+
 $checkStmt = $mysqli->prepare("SELECT id FROM tbluser WHERE email = ?");
 if (!$checkStmt) {
     log_info("Prepare (duplicate check) failed: " . $mysqli->error);
@@ -25,9 +25,12 @@ if ($checkStmt->num_rows > 0) {
 }
 $checkStmt->close();
 
-$query = "INSERT INTO tbluser (email, passwordHash, studentName, schoolName, admin, teacher)
-          VALUES (?, ?, ?, ?, 0, 0)";
-$stmt = $mysqli->prepare($query);
+$admin   = !empty($receivedData['admin'])   ? 1 : 0;
+$teacher = !empty($receivedData['teacher']) ? 1 : 0;
+
+$stmt = $mysqli->prepare(
+    "INSERT INTO tbluser (email, passwordHash, studentName, schoolName, admin, teacher) VALUES (?, ?, ?, ?, ?, ?)"
+);
 
 if (!$stmt) {
     log_info("Prepare failed: " . $mysqli->error);
@@ -35,11 +38,13 @@ if (!$stmt) {
 }
 
 $stmt->bind_param(
-    "ssss",
+    "ssssii",
     $receivedData['email'],
     $receivedData['passwordHash'],
     $receivedData['studentName'],
-    $receivedData['schoolName']
+    $receivedData['schoolName'],
+    $admin,
+    $teacher
 );
 
 if (!$stmt->execute()) {
@@ -47,7 +52,7 @@ if (!$stmt->execute()) {
     send_response("Execute failed: " . $stmt->error, 500);
 }
 
-log_info("New user registered: " . $receivedData['email']);
-send_response("Registration successful. You can now log in.", 200);
+log_info("Admin created user: " . $receivedData['email']);
+send_response("User created.", 200);
 
 $stmt->close();

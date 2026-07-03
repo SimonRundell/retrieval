@@ -93,6 +93,20 @@ function requireAuth(): array {
     return $payload;
 }
 
+/**
+ * Enforces JWT authentication for administrator-only endpoints.
+ * Terminates with 403 if authenticated but not an administrator.
+ *
+ * @return array Decoded JWT payload.
+ */
+function requireAdmin(): array {
+    $payload = requireAuth();
+    if (empty($payload['admin'])) {
+        send_response('Forbidden: administrator access required', 403);
+    }
+    return $payload;
+}
+
 /* ----------------------------------------------------------
    RESPONSE HELPERS
    ---------------------------------------------------------- */

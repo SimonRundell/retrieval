@@ -10,13 +10,20 @@ import { useEffect, useRef } from 'react';
 export default function Modal({ open, onClose, title, children, footer, size = '' }) {
     const dialogRef = useRef(null);
 
+    // Keep the latest onClose in a ref so the effect below doesn't need it as
+    // a dependency — onClose is often a fresh function identity on every
+    // render, which would otherwise re-run the effect (and steal focus back
+    // to the dialog) on every keystroke inside the modal.
+    const onCloseRef = useRef(onClose);
+    onCloseRef.current = onClose;
+
     useEffect(() => {
         if (!open) return;
-        const handler = (e) => { if (e.key === 'Escape') onClose?.(); };
-        document.addEventListener('keydown', handler);
         dialogRef.current?.focus();
+        const handler = (e) => { if (e.key === 'Escape') onCloseRef.current?.(); };
+        document.addEventListener('keydown', handler);
         return () => document.removeEventListener('keydown', handler);
-    }, [open, onClose]);
+    }, [open]);
 
     if (!open) return null;
 

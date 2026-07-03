@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, Link }   from 'react-router-dom';
+import CryptoJS from 'crypto-js';
 import { useAuth }  from '../../contexts/AuthContext';
 import { useToast } from '../../contexts/ToastContext';
 import api       from '../../hooks/useApi';
@@ -8,6 +9,7 @@ import Spinner   from '../../components/ui/Spinner';
 import Accordion from '../../components/ui/Accordion';
 import Modal     from '../../components/ui/Modal';
 import Input     from '../../components/ui/Input';
+import UserManagement from './UserManagement';
 
 function questionCount(quiz) {
     try {
@@ -29,11 +31,18 @@ export default function TeacherDashboard() {
 
     const [quizzes, setQuizzes] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [tab, setTab] = useState('quizzes');
 
     const [watchModal,   setWatchModal]   = useState(null);
     const [duration,     setDuration]     = useState('10');
     const [clearScores,  setClearScores]  = useState(true);
     const [launching,    setLaunching]    = useState(false);
+
+    const [changePwOpen, setChangePwOpen] = useState(false);
+    const [currentPw,    setCurrentPw]    = useState('');
+    const [newPw,        setNewPw]        = useState('');
+    const [confirmPw,    setConfirmPw]    = useState('');
+    const [changingPw,   setChangingPw]   = useState(false);
 
     useEffect(() => {
         api.post('/getAllQuizzes.php', {})
@@ -64,6 +73,30 @@ export default function TeacherDashboard() {
         } finally {
             setLaunching(false);
             setWatchModal(null);
+        }
+    }
+
+    function openChangePassword() {
+        setCurrentPw(''); setNewPw(''); setConfirmPw('');
+        setChangePwOpen(true);
+    }
+
+    async function handleChangePassword() {
+        if (!currentPw || !newPw) return toast.error('Please fill in both password fields.');
+        if (newPw !== confirmPw)  return toast.error('New passwords do not match.');
+
+        setChangingPw(true);
+        try {
+            await api.post('/changePassword.php', {
+                currentPasswordHash: CryptoJS.MD5(currentPw).toString(),
+                newPasswordHash:     CryptoJS.MD5(newPw).toString(),
+            });
+            toast.success('Password changed!');
+            setChangePwOpen(false);
+        } catch (err) {
+            toast.error(err.response?.data?.message || 'Failed to change password.');
+        } finally {
+            setChangingPw(false);
         }
     }
 
@@ -124,35 +157,59 @@ export default function TeacherDashboard() {
                 </div>
                 <nav className="app-header-nav">
                     <span className="app-header-user">Signed in as <strong>{teacher?.name}</strong></span>
+                    <Button variant="ghost" size="sm" onClick={openChangePassword}>Change password</Button>
                     <Button variant="ghost" size="sm" onClick={() => { logout(); navigate('/teacher/login'); }}>Sign out</Button>
                 </nav>
             </header>
 
             <main className="app-main">
-                <div className="dashboard-header">
-                    <div>
-                        <h1 className="dashboard-title">My Quizzes</h1>
-                        <p className="dashboard-subtitle">{quizzes.length} quiz{quizzes.length !== 1 ? 'zes' : ''} available</p>
-                    </div>
-                    <Link to="/teacher/quiz/new">
-                        <Button variant="primary">+ Create quiz</Button>
-                    </Link>
-                </div>
-
-                {loading && <Spinner overlay label="Loading quizzes…" />}
-
-                {!loading && quizzes.length === 0 && (
-                    <div className="card">
-                        <div className="card-body text-center" style={{ padding: '48px 24px' }}>
-                            <p style={{ fontSize: 'var(--text-lg)', color: 'var(--gray-400)', marginBottom: 16 }}>No quizzes yet.</p>
-                            <Link to="/teacher/quiz/new">
-                                <Button variant="primary">Create your first quiz</Button>
-                            </Link>
-                        </div>
+                {teacher?.admin && (
+                    <div className="dashboard-tabs">
+                        <button
+                            className={`dashboard-tab${tab === 'quizzes' ? ' dashboard-tab--active' : ''}`}
+                            onClick={() => setTab('quizzes')}
+                        >
+                            My Quizzes
+                        </button>
+                        <button
+                            className={`dashboard-tab${tab === 'users' ? ' dashboard-tab--active' : ''}`}
+                            onClick={() => setTab('users')}
+                        >
+                            Manage Users
+                        </button>
                     </div>
                 )}
 
-                {!loading && quizzes.length > 0 && <Accordion items={items} multi />}
+                {tab === 'users' && teacher?.admin ? (
+                    <UserManagement />
+                ) : (
+                    <>
+                        <div className="dashboard-header">
+                            <div>
+                                <h1 className="dashboard-title">My Quizzes</h1>
+                                <p className="dashboard-subtitle">{quizzes.length} quiz{quizzes.length !== 1 ? 'zes' : ''} available</p>
+                            </div>
+                            <Link to="/teacher/quiz/new">
+                                <Button variant="primary">+ Create quiz</Button>
+                            </Link>
+                        </div>
+
+                        {loading && <Spinner overlay label="Loading quizzes…" />}
+
+                        {!loading && quizzes.length === 0 && (
+                            <div className="card">
+                                <div className="card-body text-center" style={{ padding: '48px 24px' }}>
+                                    <p style={{ fontSize: 'var(--text-lg)', color: 'var(--gray-400)', marginBottom: 16 }}>No quizzes yet.</p>
+                                    <Link to="/teacher/quiz/new">
+                                        <Button variant="primary">Create your first quiz</Button>
+                                    </Link>
+                                </div>
+                            </div>
+                        )}
+
+                        {!loading && quizzes.length > 0 && <Accordion items={items} multi />}
+                    </>
+                )}
             </main>
 
             <Modal
@@ -208,6 +265,42 @@ export default function TeacherDashboard() {
                         </label>
                     </div>
                 </div>
+            </Modal>
+
+            <Modal
+                open={changePwOpen}
+                onClose={() => setChangePwOpen(false)}
+                title="Change password"
+                footer={
+                    <>
+                        <Button variant="ghost" onClick={() => setChangePwOpen(false)}>Cancel</Button>
+                        <Button variant="primary" onClick={handleChangePassword} disabled={changingPw}>
+                            {changingPw ? 'Saving…' : 'Change password'}
+                        </Button>
+                    </>
+                }
+            >
+                <Input
+                    label="Current password *"
+                    type="password"
+                    value={currentPw}
+                    onChange={e => setCurrentPw(e.target.value)}
+                    autoComplete="current-password"
+                />
+                <Input
+                    label="New password *"
+                    type="password"
+                    value={newPw}
+                    onChange={e => setNewPw(e.target.value)}
+                    autoComplete="new-password"
+                />
+                <Input
+                    label="Confirm new password *"
+                    type="password"
+                    value={confirmPw}
+                    onChange={e => setConfirmPw(e.target.value)}
+                    autoComplete="new-password"
+                />
             </Modal>
         </div>
     );

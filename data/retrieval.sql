@@ -107,7 +107,6 @@ CREATE TABLE `tbluser`  (
   `passwordHash` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `studentName` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL,
   `schoolName` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL,
-  `classNamen` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL,
   `admin` tinyint NOT NULL DEFAULT 0 COMMENT '1 = admin',
   `teacher` tinyint NOT NULL DEFAULT 0 COMMENT '1 = teacher',
   PRIMARY KEY (`id`) USING BTREE,
@@ -117,6 +116,6 @@ CREATE TABLE `tbluser`  (
 -- ----------------------------
 -- Records of tbluser
 -- ----------------------------
-INSERT INTO `tbluser` VALUES (1, 'simonrundell@exe-coll.ac.uk', '81dc9bdb52d04dc20036dbd8313ed055', 'Administrator', 'Exeter College', NULL, 1, 1);
+INSERT INTO `tbluser` VALUES (1, 'simonrundell@exe-coll.ac.uk', '81dc9bdb52d04dc20036dbd8313ed055', 'Administrator', 'Exeter College', 1, 1);
 
 SET FOREIGN_KEY_CHECKS = 1;

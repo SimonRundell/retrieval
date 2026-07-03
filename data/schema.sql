@@ -25,7 +25,6 @@ CREATE TABLE `tbluser` (
     `passwordHash` VARCHAR(255) NOT NULL,
     `studentName`  VARCHAR(255)     NULL,
     `schoolName`   VARCHAR(255)     NULL,
-    `classNamen`   VARCHAR(255)     NULL,
     `admin`        TINYINT      NOT NULL DEFAULT 0 COMMENT '1 = admin',
     `teacher`      TINYINT      NOT NULL DEFAULT 0 COMMENT '1 = teacher',
     PRIMARY KEY (`id`),
