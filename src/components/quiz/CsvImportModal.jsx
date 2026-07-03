@@ -104,7 +104,54 @@ function validateMatch(rows) {
 }
 
 /**
- * CsvImportModal — guides the teacher through importing bulk questions from a CSV file.
+ * Validate and map a JSON array for a Multiple Choice quiz.
+ * Expected shape: [{ question, answers: [4 strings], correctAnswer: 0-3 }]
+ * @returns {{ data?: object[], error?: string }}
+ */
+function validateMCJson(arr) {
+    if (!Array.isArray(arr) || arr.length === 0) return { error: 'The file contains no questions.' };
+
+    const data = arr.map((item, i) => {
+        const question    = String(item?.question ?? '').trim();
+        const answersRaw  = Array.isArray(item?.answers) ? item.answers : [];
+        const answers     = [0, 1, 2, 3].map(j => String(answersRaw[j] ?? '').trim());
+        const correctRaw  = item?.correctAnswer;
+        const correctAnswer = Number.isInteger(correctRaw) && correctRaw >= 0 && correctRaw <= 3 ? correctRaw : -1;
+
+        const errors = [];
+        if (!question)                errors.push('Missing question');
+        if (answersRaw.length !== 4)  errors.push('Must have exactly 4 answers');
+        else if (answers.some(a => !a)) errors.push('Missing answer option(s)');
+        if (correctAnswer === -1)     errors.push(`correctAnswer must be 0-3 (got "${correctRaw}")`);
+
+        return { question, answers, correctAnswer: correctAnswer === -1 ? 0 : correctAnswer, _row: i + 1, _errors: errors };
+    });
+
+    return { data };
+}
+
+/**
+ * Validate and map a JSON array for a Match Definitions quiz.
+ * Expected shape: [{ question, answer }]
+ * @returns {{ data?: object[], error?: string }}
+ */
+function validateMatchJson(arr) {
+    if (!Array.isArray(arr) || arr.length === 0) return { error: 'The file contains no pairs.' };
+
+    const data = arr.map((item, i) => {
+        const question = String(item?.question ?? '').trim();
+        const answer   = String(item?.answer ?? '').trim();
+        const errors   = [];
+        if (!question) errors.push('Missing question/term');
+        if (!answer)   errors.push('Missing answer/definition');
+        return { question, answer, _row: i + 1, _errors: errors };
+    });
+
+    return { data };
+}
+
+/**
+ * CsvImportModal — guides the teacher through importing bulk questions from a CSV or JSON file.
  *
  * @param {Object}   props
  * @param {boolean}  props.open       Controls visibility.
@@ -133,10 +180,21 @@ export default function CsvImportModal({ open, onClose, quizType, onImport }) {
         const file = e.target.files[0];
         if (!file) return;
         setFileName(file.name);
+        const isJson = /\.json$/i.test(file.name);
         const reader = new FileReader();
         reader.onload = ev => {
-            const rows   = parseCSV(ev.target.result);
-            const result = isMatch ? validateMatch(rows) : validateMC(rows);
+            let result;
+            if (isJson) {
+                try {
+                    const arr = JSON.parse(ev.target.result);
+                    result = isMatch ? validateMatchJson(arr) : validateMCJson(arr);
+                } catch {
+                    result = { error: 'The file is not valid JSON.' };
+                }
+            } else {
+                const rows = parseCSV(ev.target.result);
+                result = isMatch ? validateMatch(rows) : validateMC(rows);
+            }
             setParsed(result);
         };
         reader.readAsText(file, 'UTF-8');
@@ -165,7 +223,7 @@ export default function CsvImportModal({ open, onClose, quizType, onImport }) {
         <Modal
             open={open}
             onClose={handleClose}
-            title="Import questions from CSV"
+            title="Import questions"
             size="wide"
             footer={
                 <>
@@ -200,18 +258,26 @@ export default function CsvImportModal({ open, onClose, quizType, onImport }) {
                     The first row must be the column headings shown above (case is ignored).
                     {isMatch ? ' All pairs are imported as a flat list — the editor will group them into sets of 4.' : ' The Correct column must contain A, B, C or D.'}
                 </p>
+                <p className="csv-guide-hint">
+                    A <strong>.json</strong> file is also accepted — an array of
+                    {isMatch
+                        ? <code>{' { "question": "…", "answer": "…" } '}</code>
+                        : <code>{' { "question": "…", "answers": ["…","…","…","…"], "correctAnswer": 0-3 } '}</code>
+                    }
+                    objects.
+                </p>
             </div>
 
             {/* File picker */}
             <div className="csv-file-row">
                 <label className="btn btn--secondary btn--sm" htmlFor="csv-file-input">
-                    Choose CSV file
+                    Choose file
                 </label>
                 <input
                     id="csv-file-input"
                     ref={fileRef}
                     type="file"
-                    accept=".csv,text/csv"
+                    accept=".csv,text/csv,.json,application/json"
                     onChange={handleFile}
                     className="sr-only"
                 />

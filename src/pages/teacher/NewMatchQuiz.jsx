@@ -5,6 +5,7 @@ import { useToast } from '../../contexts/ToastContext';
 import api    from '../../hooks/useApi';
 import Button from '../../components/ui/Button';
 import Input  from '../../components/ui/Input';
+import CsvImportModal from '../../components/quiz/CsvImportModal';
 
 const QUESTIONS_PER_SET = 4;
 
@@ -42,6 +43,7 @@ export default function NewMatchQuiz() {
 
     const [setHeaders, setSetHeaders] = useState(['Set 1']);
     const [saving, setSaving] = useState(false);
+    const [importing, setImporting] = useState(false);
 
     function updateMeta(key, val) {
         setMeta(prev => ({ ...prev, [key]: val }));
@@ -81,6 +83,19 @@ export default function NewMatchQuiz() {
 
     function updateHeader(setIdx, val) {
         setSetHeaders(prev => prev.map((h, i) => i === setIdx ? val : h));
+    }
+
+    /**
+     * Replace all pairs with those parsed from an imported CSV/JSON file.
+     * The editor auto-groups them into sets of QUESTIONS_PER_SET,
+     * so set headers are reset to defaults.
+     * @param {{ question: string, answer: string }[]} importedPairs
+     */
+    function handleImport(importedPairs) {
+        setPairs(importedPairs);
+        const setCount = Math.ceil(importedPairs.length / QUESTIONS_PER_SET);
+        setSetHeaders(Array.from({ length: setCount }, (_, i) => `Set ${i + 1}`));
+        toast.success(`${importedPairs.length} question${importedPairs.length !== 1 ? 's' : ''} imported — review and save when ready.`);
     }
 
     async function handleSave() {
@@ -164,7 +179,10 @@ export default function NewMatchQuiz() {
                 <div className="card">
                     <div className="card-header">
                         <h3>Questions &amp; Answers</h3>
-                        <span className="badge badge--gray">{pairs.length} pairs · {Math.ceil(pairs.length / QUESTIONS_PER_SET)} set{Math.ceil(pairs.length / QUESTIONS_PER_SET) !== 1 ? 's' : ''}</span>
+                        <div className="flex gap-2" style={{ alignItems: 'center' }}>
+                            <span className="badge badge--gray">{pairs.length} pairs · {Math.ceil(pairs.length / QUESTIONS_PER_SET)} set{Math.ceil(pairs.length / QUESTIONS_PER_SET) !== 1 ? 's' : ''}</span>
+                            <Button variant="secondary" size="sm" onClick={() => setImporting(true)}>Import</Button>
+                        </div>
                     </div>
                     <div className="card-body">
                         <div className="editor-questions">
@@ -214,6 +232,13 @@ export default function NewMatchQuiz() {
                     </div>
                 </div>
             </main>
+
+            <CsvImportModal
+                open={importing}
+                onClose={() => setImporting(false)}
+                quizType={1}
+                onImport={handleImport}
+            />
         </div>
     );
 }

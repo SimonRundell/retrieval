@@ -6,23 +6,22 @@
  * @license CC BY-NC-SA 4.0 — Simon Rundell / CodeMonkey Design Ltd. 2025
  */
 
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
-header("Content-Type: application/json");
+require_once __DIR__ . '/cors.php';
 
 ini_set('display_errors', 0);
 ini_set('display_startup_errors', 0);
 error_reporting(E_ALL);
 
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit;
-}
-
 $config = json_decode(file_get_contents(__DIR__ . '/.config.json'), true);
 
-$mysqli = new mysqli($config['servername'], $config['username'], $config['password'], $config['dbname']);
+/* CLIENT_FOUND_ROWS makes affected_rows count WHERE-matched rows rather than
+   rows whose values actually changed, so re-saving unchanged data doesn't
+   look like a failed update. */
+$mysqli = mysqli_init();
+$mysqli->real_connect(
+    $config['servername'], $config['username'], $config['password'], $config['dbname'],
+    null, null, MYSQLI_CLIENT_FOUND_ROWS
+);
 if ($mysqli->connect_error) {
     log_info("Connection failed: " . $mysqli->connect_error);
     send_response("Connection failed: " . $mysqli->connect_error, 500);

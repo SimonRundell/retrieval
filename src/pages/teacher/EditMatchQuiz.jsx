@@ -149,7 +149,7 @@ export default function EditMatchQuiz({ quiz }) {
                         <div className="flex gap-2" style={{ alignItems: 'center' }}>
                             <span className="badge badge--gray">{pairs.length} pairs</span>
                             <Button variant="secondary" size="sm" onClick={() => setImporting(true)}>
-                                Import CSV
+                                Import
                             </Button>
                         </div>
                     </div>

@@ -129,7 +129,7 @@ export default function EditMCQuiz({ quiz }) {
                 <div className="editor-toolbar">
                     <h2 style={{ fontSize: 'var(--text-xl)', fontWeight: 700 }}>Questions</h2>
                     <div className="flex gap-2">
-                        <Button variant="ghost" size="sm" onClick={() => setImporting(true)}>Import CSV</Button>
+                        <Button variant="ghost" size="sm" onClick={() => setImporting(true)}>Import</Button>
                         <Button variant="secondary" onClick={addQuestion}>+ Add question</Button>
                     </div>
                 </div>
