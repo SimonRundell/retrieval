@@ -69,13 +69,13 @@ export default function TeacherLogin() {
                         onChange={e => setPassword(e.target.value)}
                         autoComplete="current-password"
                     />
-                    {error && <p className="form-error" role="alert" style={{ marginBottom: 16 }}>{error}</p>}
+                    {error && <p className="form-error mb-4" role="alert">{error}</p>}
                     <Button type="submit" fullWidth size="lg" disabled={loading}>
                         {loading ? 'Signing in…' : 'Sign in'}
                     </Button>
                 </form>
 
-                <p style={{ textAlign: 'center', marginTop: 24, fontSize: 'var(--text-sm)', color: 'var(--gray-400)' }}>
+                <p className="login-back-link">
                     <Link to="/">← Back to student entry</Link>
                 </p>
             </div>

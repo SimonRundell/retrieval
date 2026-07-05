@@ -30,64 +30,41 @@ export default function CMFloatAd({ color = '#334155', bgColor = '#f8fafc' }) {
 
   const currentYear = new Date().getFullYear();
 
-  const bannerStyle = {
-    position:        'fixed',
-    bottom:          '10px',
-    right:           '20px',
-    width:           'max-content',
-    maxWidth:        isHovered ? (isMobile ? '95%' : '75%') : '107px',
-    height:          isMobile && isHovered ? 'auto' : '60px',
-    minHeight:       isMobile && isHovered ? '80px' : '60px',
-    padding:         '10px',
-    backgroundColor: bgColor,
-    color,
-    fontSize:        isMobile ? 'xx-small' : 'x-small',
-    whiteSpace:      isMobile && isHovered ? 'normal' : 'nowrap',
-    overflow:        'hidden',
-    transition:      'max-width 0.8s ease-in-out, height 0.4s ease-in-out',
-    display:         'flex',
-    alignItems:      isMobile && isHovered ? 'flex-start' : 'center',
-    justifyContent:  'flex-start',
-    cursor:          'pointer',
-    flexDirection:   isMobile && isHovered ? 'column' : 'row',
-    lineHeight:      isMobile ? '1.2' : 'normal',
-    zIndex:          1000,
-    border:          isHovered ? '1px solid #cbd5e1' : 'none',
-    borderRadius:    '6px',
-    boxShadow:       isHovered ? '0 2px 8px rgba(0,0,0,0.12)' : 'none',
-  };
+  const bannerClass = [
+    'cm-float-ad',
+    isMobile && 'cm-float-ad--mobile',
+    isHovered && 'cm-float-ad--hovered',
+  ].filter(Boolean).join(' ');
 
-  const contentStyle = {
-    display:       'flex',
-    alignItems:    isMobile && isHovered ? 'flex-start' : 'center',
-    gap:           '5px',
-    flexDirection: isMobile && isHovered ? 'column' : 'row',
-    width:         '100%',
-  };
+  const contentClass = [
+    'cm-float-ad-content',
+    isMobile && isHovered && 'cm-float-ad-content--mobile-hovered',
+  ].filter(Boolean).join(' ');
 
   return (
     <div
-      style={bannerStyle}
+      className={bannerClass}
+      style={{ backgroundColor: bgColor, color }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div style={contentStyle}>
-        <img alt="cm-logo" src={CM_LOGO} height="40" width="85" style={{ flexShrink: 0 }} />
+      <div className={contentClass}>
+        <img alt="cm-logo" src={CM_LOGO} height="40" width="85" className="cm-float-ad-logo" />
         {!isMobile && (
           <span>
             &nbsp;&nbsp;&copy; {currentYear} Designed and Created by Simon Rundell, Dept of ITDD,
             Exeter College, Hele Road, Exeter EX4 4JS. | Tel: 01392 400500 | eMail:{' '}
-            <a href="mailto:simonrundell@exe-coll.ac.uk" style={{ color, textDecoration: 'none' }}>
+            <a href="mailto:simonrundell@exe-coll.ac.uk" className="cm-float-ad-link" style={{ color }}>
               simonrundell@exe-coll.ac.uk
             </a>
           </span>
         )}
         {isMobile && isHovered && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', fontSize: 'xx-small', lineHeight: '1.2' }}>
+          <div className="cm-float-ad-mobile-details">
             <span>&copy; {currentYear} Simon Rundell, Dept of ITDD</span>
             <span>Exeter College, Hele Road, Exeter EX4 4JS.</span>
             <span>Tel: 01392 400500</span>
-            <a href="mailto:simonrundell@exe-coll.ac.uk" style={{ color, textDecoration: 'none' }}>
+            <a href="mailto:simonrundell@exe-coll.ac.uk" className="cm-float-ad-link" style={{ color }}>
               simonrundell@exe-coll.ac.uk
             </a>
           </div>

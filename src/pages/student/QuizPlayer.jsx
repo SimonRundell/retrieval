@@ -36,7 +36,7 @@ export default function QuizPlayer() {
         }).catch(() => setError('Failed to load quiz. Please try again.'));
     }, [quizCode]);
 
-    if (error)  return <div className="flex-center" style={{ minHeight: '100vh' }}><p>{error}</p></div>;
+    if (error)  return <div className="flex-center full-viewport-height"><p>{error}</p></div>;
     if (!quiz)  return <Spinner overlay label="Loading quiz…" />;
 
     const timerProps = session

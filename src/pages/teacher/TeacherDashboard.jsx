@@ -4,12 +4,16 @@ import CryptoJS from 'crypto-js';
 import { useAuth }  from '../../contexts/AuthContext';
 import { useToast } from '../../contexts/ToastContext';
 import api       from '../../hooks/useApi';
+import useLookups from '../../hooks/useLookups';
 import Button    from '../../components/ui/Button';
 import Spinner   from '../../components/ui/Spinner';
 import Accordion from '../../components/ui/Accordion';
 import Modal     from '../../components/ui/Modal';
 import Input     from '../../components/ui/Input';
 import UserManagement from './UserManagement';
+import ManageLookupsModal from './ManageLookupsModal';
+
+const emptyFilters = { title: '', subject: '', topic: '', year: '', unit: '' };
 
 function questionCount(quiz) {
     try {
@@ -32,6 +36,10 @@ export default function TeacherDashboard() {
     const [quizzes, setQuizzes] = useState([]);
     const [loading, setLoading] = useState(true);
     const [tab, setTab] = useState('quizzes');
+
+    const [lookups, , reloadLookups] = useLookups();
+    const [filters, setFilters] = useState(emptyFilters);
+    const [manageListsOpen, setManageListsOpen] = useState(false);
 
     const [watchModal,   setWatchModal]   = useState(null);
     const [duration,     setDuration]     = useState('10');
@@ -103,13 +111,25 @@ export default function TeacherDashboard() {
     const typeLabel = t => (t === 2 || t === '2') ? 'Multiple Choice' : 'Match Definitions';
     const typeBadge = t => (t === 2 || t === '2') ? 'badge--yellow' : 'badge--blue';
 
-    const items = quizzes.map(q => ({
+    function updateFilter(key, val) { setFilters(prev => ({ ...prev, [key]: val })); }
+    function clearFilters() { setFilters(emptyFilters); }
+    const filtersActive = Object.values(filters).some(Boolean);
+
+    const filteredQuizzes = quizzes.filter(q => (
+        (!filters.title   || q.quizName.toLowerCase().includes(filters.title.toLowerCase())) &&
+        (!filters.subject || q.quizSubject === filters.subject) &&
+        (!filters.topic   || q.quizTopic   === filters.topic) &&
+        (!filters.year    || q.quizYear    === filters.year) &&
+        (!filters.unit    || q.quizUnit    === filters.unit)
+    ));
+
+    const items = filteredQuizzes.map(q => ({
         key: q.quizCode,
         label: (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0, flex: 1 }}>
+            <div className="quiz-accordion-label">
                 <span className={`badge ${typeBadge(q.quizType)}`}>{typeLabel(q.quizType)}</span>
-                <span style={{ fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{q.quizName}</span>
-                <span className="quiz-meta-item" style={{ marginLeft: 'auto', flexShrink: 0 }}>{questionCount(q)} questions</span>
+                <span className="quiz-accordion-name">{q.quizName}</span>
+                <span className="quiz-meta-item quiz-meta-item--auto">{questionCount(q)} questions</span>
             </div>
         ),
         children: (
@@ -120,7 +140,7 @@ export default function TeacherDashboard() {
                     <span className="quiz-meta-item">Year: <strong>{q.quizYear || '—'}</strong></span>
                     <span className="quiz-meta-item">Unit: <strong>{q.quizUnit || '—'}</strong></span>
                 </div>
-                {q.quizDescription && <p style={{ marginTop: 8, fontSize: 'var(--text-sm)', color: 'var(--gray-500)' }}>{q.quizDescription}</p>}
+                {q.quizDescription && <p className="quiz-description">{q.quizDescription}</p>}
                 <div className="quiz-actions">
                     <span
                         className="code-chip"
@@ -187,19 +207,54 @@ export default function TeacherDashboard() {
                         <div className="dashboard-header">
                             <div>
                                 <h1 className="dashboard-title">My Quizzes</h1>
-                                <p className="dashboard-subtitle">{quizzes.length} quiz{quizzes.length !== 1 ? 'zes' : ''} available</p>
+                                <p className="dashboard-subtitle">
+                                    {filtersActive
+                                        ? `${filteredQuizzes.length} of ${quizzes.length} quiz${quizzes.length !== 1 ? 'zes' : ''}`
+                                        : `${quizzes.length} quiz${quizzes.length !== 1 ? 'zes' : ''} available`}
+                                </p>
                             </div>
-                            <Link to="/teacher/quiz/new">
-                                <Button variant="primary">+ Create quiz</Button>
-                            </Link>
+                            <div className="flex gap-2">
+                                <Button variant="secondary" onClick={() => setManageListsOpen(true)}>Manage lists</Button>
+                                <Link to="/teacher/quiz/new">
+                                    <Button variant="primary">+ Create quiz</Button>
+                                </Link>
+                            </div>
                         </div>
+
+                        {!loading && quizzes.length > 0 && (
+                            <div className="filter-bar">
+                                <input
+                                    className="form-input filter-bar-title"
+                                    placeholder="Search by title…"
+                                    value={filters.title}
+                                    onChange={e => updateFilter('title', e.target.value)}
+                                />
+                                <select className="form-select" value={filters.subject} onChange={e => updateFilter('subject', e.target.value)}>
+                                    <option value="">All subjects</option>
+                                    {lookups.subject.map(o => <option key={o.id} value={o.value}>{o.value}</option>)}
+                                </select>
+                                <select className="form-select" value={filters.topic} onChange={e => updateFilter('topic', e.target.value)}>
+                                    <option value="">All topics</option>
+                                    {lookups.topic.map(o => <option key={o.id} value={o.value}>{o.value}</option>)}
+                                </select>
+                                <select className="form-select" value={filters.year} onChange={e => updateFilter('year', e.target.value)}>
+                                    <option value="">All years</option>
+                                    {lookups.year.map(o => <option key={o.id} value={o.value}>{o.value}</option>)}
+                                </select>
+                                <select className="form-select" value={filters.unit} onChange={e => updateFilter('unit', e.target.value)}>
+                                    <option value="">All units</option>
+                                    {lookups.unit.map(o => <option key={o.id} value={o.value}>{o.value}</option>)}
+                                </select>
+                                {filtersActive && <Button variant="ghost" size="sm" onClick={clearFilters}>Clear filters</Button>}
+                            </div>
+                        )}
 
                         {loading && <Spinner overlay label="Loading quizzes…" />}
 
                         {!loading && quizzes.length === 0 && (
                             <div className="card">
-                                <div className="card-body text-center" style={{ padding: '48px 24px' }}>
-                                    <p style={{ fontSize: 'var(--text-lg)', color: 'var(--gray-400)', marginBottom: 16 }}>No quizzes yet.</p>
+                                <div className="card-body text-center p-12-6">
+                                    <p className="empty-state-text mb-4">No quizzes yet.</p>
                                     <Link to="/teacher/quiz/new">
                                         <Button variant="primary">Create your first quiz</Button>
                                     </Link>
@@ -207,7 +262,16 @@ export default function TeacherDashboard() {
                             </div>
                         )}
 
-                        {!loading && quizzes.length > 0 && <Accordion items={items} multi />}
+                        {!loading && quizzes.length > 0 && filteredQuizzes.length === 0 && (
+                            <div className="card">
+                                <div className="card-body text-center p-12-6">
+                                    <p className="empty-state-text mb-4">No quizzes match your filters.</p>
+                                    <Button variant="secondary" onClick={clearFilters}>Clear filters</Button>
+                                </div>
+                            </div>
+                        )}
+
+                        {!loading && filteredQuizzes.length > 0 && <Accordion items={items} multi />}
                     </>
                 )}
             </main>
@@ -225,7 +289,7 @@ export default function TeacherDashboard() {
                     </>
                 }
             >
-                <p style={{ marginBottom: 16, color: 'var(--gray-600)', fontSize: 'var(--text-sm)' }}>
+                <p className="modal-hint-text mb-4">
                     Students will see a countdown timer. The session starts immediately when you click Launch.
                 </p>
                 <Input
@@ -236,7 +300,7 @@ export default function TeacherDashboard() {
                     value={duration}
                     onChange={e => setDuration(e.target.value)}
                 />
-                <div className="form-group" style={{ marginTop: 4 }}>
+                <div className="form-group mt-1">
                     <label className="form-label">Leaderboard</label>
                     <div className="launch-option-group">
                         <label className={`launch-option${clearScores ? ' launch-option--selected' : ''}`}>
@@ -302,6 +366,13 @@ export default function TeacherDashboard() {
                     autoComplete="new-password"
                 />
             </Modal>
+
+            <ManageLookupsModal
+                open={manageListsOpen}
+                onClose={() => setManageListsOpen(false)}
+                lookups={lookups}
+                onReload={reloadLookups}
+            />
         </div>
     );
 }

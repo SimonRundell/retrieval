@@ -497,6 +497,7 @@ img { max-width: 100%; display: block; }
 
 .login-title { font-size: var(--text-xl); font-weight: 700; color: var(--gray-900); text-align: center; }
 .login-subtitle { font-size: var(--text-sm); color: var(--gray-500); text-align: center; margin-top: var(--space-1); }
+.login-back-link { text-align: center; margin-top: var(--space-6); font-size: var(--text-sm); color: var(--gray-400); }
 
 /* =========================================================
    TEACHER DASHBOARD
@@ -556,6 +557,54 @@ img { max-width: 100%; display: block; }
   padding-top: var(--space-4);
   border-top: 1px solid var(--gray-100);
 }
+
+.quiz-accordion-label { display: flex; align-items: center; gap: var(--space-3); min-width: 0; flex: 1; }
+.quiz-accordion-name { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.quiz-meta-item--auto { margin-left: auto; flex-shrink: 0; }
+.quiz-description { margin-top: var(--space-2); font-size: var(--text-sm); color: var(--gray-500); }
+.empty-state-text { font-size: var(--text-lg); color: var(--gray-400); }
+.modal-hint-text { color: var(--gray-600); font-size: var(--text-sm); }
+
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-6);
+}
+
+.filter-bar-title { flex: 1 1 220px; min-width: 180px; }
+.filter-bar .form-select { width: auto; min-width: 140px; }
+
+.lookup-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.lookup-list-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-sm);
+}
+
+.lookup-list-value { font-size: var(--text-sm); font-weight: 600; color: var(--gray-800); }
+
+.lookup-add-row {
+  display: flex;
+  gap: var(--space-2);
+  border-top: 1px solid var(--gray-200);
+  padding-top: var(--space-4);
+}
+
+.lookup-add-row .form-input { flex: 1; }
 
 .code-chip {
   display: inline-flex;
@@ -676,6 +725,9 @@ img { max-width: 100%; display: block; }
   gap: var(--space-3);
   flex-wrap: wrap;
 }
+
+.editor-toolbar-title { font-size: var(--text-xl); font-weight: 700; }
+.mc-question-meta-label { font-weight: 600; color: var(--gray-500); font-size: var(--text-sm); }
 
 /* =========================================================
    QUIZ PLAYER SHELL
@@ -1051,6 +1103,10 @@ img { max-width: 100%; display: block; }
 }
 
 .watch-title { font-size: var(--text-2xl); font-weight: 700; }
+.watch-subtitle { color: rgba(255,255,255,0.5); font-size: var(--text-sm); margin-top: 4px; }
+.watch-header-actions { display: flex; align-items: center; gap: var(--space-6); }
+.watch-dashboard-link { color: rgba(255,255,255,0.5); font-size: var(--text-sm); }
+.watch-empty-hint { font-size: var(--text-sm); margin-top: var(--space-2); display: block; }
 .watch-timer { font-size: var(--text-3xl); font-weight: 700; font-variant-numeric: tabular-nums; color: var(--primary-light); }
 .watch-timer--danger { color: #fca5a5; animation: pulse 1s ease infinite; }
 
@@ -1297,14 +1353,106 @@ img { max-width: 100%; display: block; }
 .flex-center { display: flex; align-items: center; justify-content: center; }
 .flex-between { display: flex; align-items: center; justify-content: space-between; }
 .flex-col    { display: flex; flex-direction: column; }
+.items-center { align-items: center; }
+.flex-shrink-0 { flex-shrink: 0; }
 .gap-2       { gap: var(--space-2); }
 .gap-3       { gap: var(--space-3); }
 .gap-4       { gap: var(--space-4); }
+.mt-1        { margin-top: var(--space-1); }
+.mt-2        { margin-top: var(--space-2); }
+.mt-3        { margin-top: var(--space-3); }
 .mt-4        { margin-top: var(--space-4); }
 .mt-6        { margin-top: var(--space-6); }
+.mb-1        { margin-bottom: var(--space-1); }
+.mb-2        { margin-bottom: var(--space-2); }
+.mb-3        { margin-bottom: var(--space-3); }
 .mb-4        { margin-bottom: var(--space-4); }
 .mb-6        { margin-bottom: var(--space-6); }
+.mr-1        { margin-right: var(--space-1); }
 .w-full      { width: 100%; }
+.full-viewport-height { min-height: 100vh; }
+.checkbox-row { display: flex; align-items: center; gap: var(--space-2); }
+.p-6         { padding: var(--space-6); }
+.p-8         { padding: var(--space-8); }
+.p-12-6      { padding: var(--space-12) var(--space-6); }
+
+.quiz-set-header-banner {
+  text-align: center;
+  padding: var(--space-3) var(--space-6);
+  background: var(--primary-light);
+  border-bottom: 1px solid var(--primary-mid);
+  font-weight: 600;
+  color: var(--primary-dark);
+}
+
+/* =========================================================
+   CM FLOAT AD
+   ========================================================= */
+.cm-float-ad {
+  position: fixed;
+  bottom: 10px;
+  right: 20px;
+  width: max-content;
+  max-width: 107px;
+  height: 60px;
+  min-height: 60px;
+  padding: 10px;
+  font-size: x-small;
+  white-space: nowrap;
+  overflow: hidden;
+  transition: max-width 0.8s ease-in-out, height 0.4s ease-in-out;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  cursor: pointer;
+  flex-direction: row;
+  line-height: normal;
+  z-index: 1000;
+  border: none;
+  border-radius: 6px;
+  box-shadow: none;
+}
+
+.cm-float-ad--hovered {
+  max-width: 75%;
+  border: 1px solid #cbd5e1;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+
+.cm-float-ad--mobile { font-size: xx-small; line-height: 1.2; }
+
+.cm-float-ad--mobile.cm-float-ad--hovered {
+  max-width: 95%;
+  height: auto;
+  min-height: 80px;
+  white-space: normal;
+  align-items: flex-start;
+  flex-direction: column;
+}
+
+.cm-float-ad-content {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-direction: row;
+  width: 100%;
+}
+
+.cm-float-ad-content--mobile-hovered {
+  align-items: flex-start;
+  flex-direction: column;
+}
+
+.cm-float-ad-logo { flex-shrink: 0; }
+.cm-float-ad-link { text-decoration: none; }
+
+.cm-float-ad-mobile-details {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: xx-small;
+  line-height: 1.2;
+}
 
 /* =========================================================
    ANIMATIONS

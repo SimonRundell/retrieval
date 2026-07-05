@@ -151,7 +151,7 @@ export default function UserManagement() {
                                     <td>{u.studentName || '—'}</td>
                                     <td>{u.schoolName || '—'}</td>
                                     <td>
-                                        {!!Number(u.admin)   && <span className="badge badge--red"   style={{ marginRight: 4 }}>Admin</span>}
+                                        {!!Number(u.admin)   && <span className="badge badge--red mr-1">Admin</span>}
                                         {!!Number(u.teacher) && <span className="badge badge--blue">Teacher</span>}
                                     </td>
                                     <td>
@@ -204,12 +204,12 @@ export default function UserManagement() {
                 )}
                 <div className="form-group">
                     <label className="form-label">Roles</label>
-                    <div className="flex gap-2" style={{ flexDirection: 'column' }}>
-                        <label style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <div className="flex-col gap-2">
+                        <label className="checkbox-row">
                             <input type="checkbox" checked={form.teacher} onChange={e => updateForm('teacher', e.target.checked)} />
                             Teacher (can sign in to the staff portal)
                         </label>
-                        <label style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <label className="checkbox-row">
                             <input
                                 type="checkbox"
                                 checked={form.admin}

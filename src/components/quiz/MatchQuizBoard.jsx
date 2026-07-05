@@ -183,7 +183,7 @@ export default function MatchQuizBoard({ quiz, studentName, quizCode, timedOut, 
                     <h2>{quiz.quizName}</h2>
                     <p>Playing as: <strong>{studentName}</strong></p>
                 </div>
-                <div className="flex gap-4" style={{ alignItems: 'center' }}>
+                <div className="flex gap-4 items-center">
                     {timerProps && <QuizTimer {...timerProps} />}
                     <div className="quiz-score-display">
                         Score <span className="quiz-score-value">{score}</span>
@@ -198,7 +198,7 @@ export default function MatchQuizBoard({ quiz, studentName, quizCode, timedOut, 
             </div>
 
             {setData.header && (
-                <div style={{ textAlign: 'center', padding: '12px 24px', background: 'var(--primary-light)', borderBottom: '1px solid var(--primary-mid)', fontWeight: 600, color: 'var(--primary-dark)' }}>
+                <div className="quiz-set-header-banner">
                     {setData.header}
                 </div>
             )}

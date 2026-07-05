@@ -57,7 +57,7 @@ export default function MCQuizBoard({ quiz, studentName, quizCode, timedOut, tim
         }, 900);
     }
 
-    if (!questions?.length) return <p style={{ padding: 24 }}>No questions found in this quiz.</p>;
+    if (!questions?.length) return <p className="p-6">No questions found in this quiz.</p>;
 
     const q   = questions[index];
     const pct = Math.round(((index) / questions.length) * 100);
@@ -69,7 +69,7 @@ export default function MCQuizBoard({ quiz, studentName, quizCode, timedOut, tim
                     <h2>{quiz.quizName}</h2>
                     <p>Playing as: <strong>{studentName}</strong></p>
                 </div>
-                <div className="flex gap-4" style={{ alignItems: 'center' }}>
+                <div className="flex gap-4 items-center">
                     {timerProps && <QuizTimer {...timerProps} />}
                     <div className="quiz-score-display">
                         Score <span className="quiz-score-value">{score}</span>

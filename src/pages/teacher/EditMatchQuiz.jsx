@@ -2,9 +2,11 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useToast } from '../../contexts/ToastContext';
 import api             from '../../hooks/useApi';
+import useLookups      from '../../hooks/useLookups';
 import Button          from '../../components/ui/Button';
 import Input           from '../../components/ui/Input';
 import CsvImportModal  from '../../components/quiz/CsvImportModal';
+import LookupSelect    from '../../components/quiz/LookupSelect';
 
 const QUESTIONS_PER_SET = 4;
 
@@ -37,6 +39,7 @@ export default function EditMatchQuiz({ quiz }) {
     const [setHeaders, setSetHeaders] = useState(flatHeaders);
     const [saving,     setSaving]     = useState(false);
     const [importing,  setImporting]  = useState(false);
+    const [lookups, setLookups] = useLookups();
 
     function updateMeta(key, val) { setMeta(prev => ({ ...prev, [key]: val })); }
     function updatePair(idx, key, val) { setPairs(prev => prev.map((p, i) => i === idx ? { ...p, [key]: val } : p)); }
@@ -129,12 +132,32 @@ export default function EditMatchQuiz({ quiz }) {
                     <div className="card-body">
                         <div className="form-row">
                             <Input label="Quiz name *" value={meta.quizName} onChange={e => updateMeta('quizName', e.target.value)} />
-                            <Input label="Subject"     value={meta.quizSubject} onChange={e => updateMeta('quizSubject', e.target.value)} />
+                            <LookupSelect
+                                label="Subject" category="subject" value={meta.quizSubject}
+                                options={lookups.subject}
+                                onChange={val => updateMeta('quizSubject', val)}
+                                onOptionsChanged={opts => setLookups(prev => ({ ...prev, subject: opts }))}
+                            />
                         </div>
                         <div className="form-row">
-                            <Input label="Topic" value={meta.quizTopic} onChange={e => updateMeta('quizTopic', e.target.value)} />
-                            <Input label="Year"  value={meta.quizYear}  onChange={e => updateMeta('quizYear', e.target.value)} />
-                            <Input label="Unit"  value={meta.quizUnit}  onChange={e => updateMeta('quizUnit', e.target.value)} />
+                            <LookupSelect
+                                label="Topic" category="topic" value={meta.quizTopic}
+                                options={lookups.topic}
+                                onChange={val => updateMeta('quizTopic', val)}
+                                onOptionsChanged={opts => setLookups(prev => ({ ...prev, topic: opts }))}
+                            />
+                            <LookupSelect
+                                label="Year" category="year" value={meta.quizYear}
+                                options={lookups.year}
+                                onChange={val => updateMeta('quizYear', val)}
+                                onOptionsChanged={opts => setLookups(prev => ({ ...prev, year: opts }))}
+                            />
+                            <LookupSelect
+                                label="Unit" category="unit" value={meta.quizUnit}
+                                options={lookups.unit}
+                                onChange={val => updateMeta('quizUnit', val)}
+                                onOptionsChanged={opts => setLookups(prev => ({ ...prev, unit: opts }))}
+                            />
                         </div>
                         <div className="form-group">
                             <label className="form-label">Description</label>
@@ -146,7 +169,7 @@ export default function EditMatchQuiz({ quiz }) {
                 <div className="card">
                     <div className="card-header">
                         <h3>Questions &amp; Answers</h3>
-                        <div className="flex gap-2" style={{ alignItems: 'center' }}>
+                        <div className="flex gap-2 items-center">
                             <span className="badge badge--gray">{pairs.length} pairs</span>
                             <Button variant="secondary" size="sm" onClick={() => setImporting(true)}>
                                 Import
@@ -180,7 +203,7 @@ export default function EditMatchQuiz({ quiz }) {
                                 );
                             })}
                         </div>
-                        <div style={{ marginTop: 16 }}>
+                        <div className="mt-4">
                             <Button variant="secondary" onClick={addPair}>+ Add question</Button>
                         </div>
                     </div>

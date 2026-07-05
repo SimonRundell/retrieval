@@ -43,11 +43,16 @@ A projector-friendly **Watch** view lets the teacher display a live leaderboard 
 │   ├── createSession.php       Start a timed session (JWT required)
 │   ├── getSession.php          Fetch the current active session for a quiz code
 │   ├── updateStatus.php        Record a student score event
-│   └── watchStatus.php         Live leaderboard data for the Watch view
+│   ├── watchStatus.php         Live leaderboard data for the Watch view
+│   ├── getLookups.php          Fetch the standardised Subject/Topic/Year/Unit lists (JWT required)
+│   ├── addLookup.php           Add a new standardised value (JWT required)
+│   ├── renameLookup.php        Rename a value, cascading into existing quizzes (JWT required)
+│   └── deleteLookup.php        Delete a value, refused if still in use (JWT required)
 │
 ├── data/
 │   ├── schema.sql              Fresh installation schema
-│   └── migrate_v2.sql          Upgrade script from the v1 schema
+│   ├── migrate_v2.sql          Upgrade script from the v1 schema
+│   └── migrate_v3.sql          Adds and seeds tblLookup for existing v2 installs
 │
 ├── public/
 │   └── .config.json            Frontend config (appName, strapline, api path)
@@ -62,16 +67,17 @@ A projector-friendly **Watch** view lets the teacher display a live leaderboard 
     │   ├── AuthContext.jsx     JWT auth state (login, logout, isAuthenticated)
     │   └── ToastContext.jsx    Global toast notification queue
     ├── hooks/
-    │   └── useApi.js           Axios instance with automatic Bearer token injection
+    │   ├── useApi.js           Axios instance with automatic Bearer token injection
+    │   └── useLookups.js       Loads the Subject/Topic/Year/Unit lookup lists
     ├── router/
     │   ├── AppRouter.jsx       All route definitions
     │   └── ProtectedRoute.jsx  Redirects unauthenticated users to /teacher/login
     ├── components/
     │   ├── ui/                 Reusable UI components (Button, Modal, Spinner, etc.)
-    │   └── quiz/               Quiz-specific components (boards, timer, score modal)
+    │   └── quiz/               Quiz-specific components (boards, timer, score modal, LookupSelect)
     └── pages/
         ├── student/            StudentEntry, QuizPlayer
-        └── teacher/            Login, Dashboard, quiz editors, WatchQuiz
+        └── teacher/            Login, Dashboard, quiz editors, WatchQuiz, ManageLookupsModal
 ```
 
 ---
@@ -121,7 +127,9 @@ The `jwtSecret` can be any long random string -- it signs all teacher authentica
 
 ### 4. Create the database
 
-Import `data/schema.sql` into MariaDB. This creates the `retrieval` database and all four tables, and inserts a default teacher account.
+Import `data/schema.sql` into MariaDB. This creates the `retrieval` database and all five tables, and inserts a default teacher account.
+
+Upgrading an existing v2 database? Run `data/migrate_v3.sql` to add the `tblLookup` table -- it auto-seeds itself from whatever Subject/Topic/Year/Unit values are already in use, so existing quizzes are unaffected.
 
 Using the Laragon terminal:
 
@@ -166,7 +174,7 @@ The app will be at `http://localhost:5173`.
 
 ## Database Schema
 
-Four tables:
+Five tables:
 
 | Table | Purpose |
 | --- | --- |
@@ -174,6 +182,7 @@ Four tables:
 | `tblquiz` | Quiz definitions. `quizData` is stored as JSON; structure depends on `quizType`. |
 | `tblstatus` | One row per student progress event. `watchStatus.php` aggregates by student name. |
 | `tblsession` | Timed session records. Students poll `getSession.php` to sync their countdown timer. |
+| `tblLookup` | Standardised Subject/Topic/Year/Unit values, shared across all teachers. `tblquiz` still stores these as plain text; the lookup table just constrains which strings are offered. |
 
 ### quizData JSON structure
 
@@ -248,6 +257,10 @@ All endpoints accept `Content-Type: application/json` via POST. Protected endpoi
 | `POST /api/getSession.php` | None | Returns the active session for a code (404 if none or expired) |
 | `POST /api/updateStatus.php` | None | Records a student progress event |
 | `POST /api/watchStatus.php` | None | Returns the leaderboard for a quiz code |
+| `POST /api/getLookups.php` | Teacher JWT | Returns the Subject/Topic/Year/Unit lookup lists |
+| `POST /api/addLookup.php` | Teacher JWT | Adds a new value to a lookup category |
+| `POST /api/renameLookup.php` | Teacher JWT | Renames a lookup value, cascading into any quizzes using it |
+| `POST /api/deleteLookup.php` | Teacher JWT | Deletes a lookup value (refused with 409 if any quiz still uses it) |
 
 ---
 
@@ -327,7 +340,25 @@ After a student completes a quiz, the score modal displays a full question revie
 
 ---
 
+## Standardised Quiz Metadata & Dashboard Filters
+
+Subject, Topic, Year and Unit are no longer free-text fields. Each is backed by a shared `tblLookup` list, so values stay consistent across every teacher's quizzes instead of drifting ("Yr 12" vs "Year 12" vs "12").
+
+- In the quiz editor, each field is a dropdown populated from the shared list, with a **+ Add new…** option at the bottom -- any teacher can extend the list inline without leaving the editor.
+- A **Manage lists** button on the dashboard opens a modal where any teacher can rename or delete values for each category. Renaming cascades into every quiz already using that value; deleting is refused (409) if any quiz still uses it, so metadata never silently disappears from existing quizzes.
+- The **My Quizzes** dashboard has a filter bar above the quiz list: a title search box plus a dropdown for each of Subject/Topic/Year/Unit. Filters combine (AND), the quiz count updates to "X of Y quizzes", and a **Clear filters** button resets everything.
+- Existing quizzes are unaffected -- `data/migrate_v3.sql` seeds the lookup lists from whatever text values were already saved, so nothing needs re-entering.
+
+---
+
 ## Changelog
+
+### 0.1.3 — 2026-07-05
+
+- **Standardised Subject/Topic/Year/Unit lists.** These fields are now dropdowns backed by a shared `tblLookup` table instead of free text, keeping quiz metadata consistent across teachers. See [Standardised Quiz Metadata & Dashboard Filters](#standardised-quiz-metadata--dashboard-filters) above. New endpoints: `getLookups.php`, `addLookup.php`, `renameLookup.php`, `deleteLookup.php`. New migration: `data/migrate_v3.sql`.
+- **Dashboard filter bar.** The "My Quizzes" list can now be filtered by title (text search) and by Subject/Topic/Year/Unit (dropdowns), with a live "X of Y" count and a Clear filters button.
+- **Manage lists modal.** Any teacher can add, rename or delete standardised values from the dashboard; renames cascade to existing quizzes, deletes are blocked while a value is still in use.
+- **Inline CSS removed.** All `style={{ ... }}` props that held static values have been moved into `src/App.css` as reusable classes (utility classes plus a handful of component-specific ones). Only genuinely runtime-computed styles (drag progress-bar widths, the `CMFloatAd` banner's configurable colours) remain inline.
 
 ### 0.1.2 — 2026-06-30
 

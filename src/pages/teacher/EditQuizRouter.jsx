@@ -22,7 +22,7 @@ export default function EditQuizRouter() {
             .catch(() => setError('Failed to load quiz.'));
     }, [quizCode]);
 
-    if (error)  return <p style={{ padding: 32 }}>{error}</p>;
+    if (error)  return <p className="p-8">{error}</p>;
     if (!quiz)  return <Spinner overlay label="Loading quiz…" />;
 
     return (quiz.quizType === 2 || quiz.quizType === '2')

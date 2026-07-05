@@ -66,7 +66,7 @@ export default function StudentEntry() {
                         hint="Your teacher will give you this code"
                     />
                     {error && <p className="form-error" role="alert">{error}</p>}
-                    <Button type="submit" fullWidth size="lg" disabled={loading} style={{ marginTop: '8px' }}>
+                    <Button type="submit" fullWidth size="lg" disabled={loading} className="mt-2">
                         {loading ? 'Finding quiz…' : 'Start quiz →'}
                     </Button>
                 </form>

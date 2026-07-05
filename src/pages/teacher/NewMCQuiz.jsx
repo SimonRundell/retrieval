@@ -3,9 +3,11 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth }  from '../../contexts/AuthContext';
 import { useToast } from '../../contexts/ToastContext';
 import api    from '../../hooks/useApi';
+import useLookups from '../../hooks/useLookups';
 import Button from '../../components/ui/Button';
 import Input  from '../../components/ui/Input';
 import CsvImportModal from '../../components/quiz/CsvImportModal';
+import LookupSelect from '../../components/quiz/LookupSelect';
 
 function genCode() { return Math.random().toString(36).substring(2, 8); }
 
@@ -32,6 +34,7 @@ export default function NewMCQuiz() {
     const [questions, setQuestions] = useState([emptyQuestion()]);
     const [saving, setSaving] = useState(false);
     const [importing, setImporting] = useState(false);
+    const [lookups, setLookups] = useLookups();
 
     function updateMeta(key, val) { setMeta(prev => ({ ...prev, [key]: val })); }
 
@@ -110,12 +113,32 @@ export default function NewMCQuiz() {
                     <div className="card-body">
                         <div className="form-row">
                             <Input label="Quiz name *" value={meta.quizName} onChange={e => updateMeta('quizName', e.target.value)} />
-                            <Input label="Subject"     value={meta.quizSubject} onChange={e => updateMeta('quizSubject', e.target.value)} />
+                            <LookupSelect
+                                label="Subject" category="subject" value={meta.quizSubject}
+                                options={lookups.subject}
+                                onChange={val => updateMeta('quizSubject', val)}
+                                onOptionsChanged={opts => setLookups(prev => ({ ...prev, subject: opts }))}
+                            />
                         </div>
                         <div className="form-row">
-                            <Input label="Topic" value={meta.quizTopic} onChange={e => updateMeta('quizTopic', e.target.value)} />
-                            <Input label="Year"  value={meta.quizYear}  onChange={e => updateMeta('quizYear', e.target.value)} />
-                            <Input label="Unit"  value={meta.quizUnit}  onChange={e => updateMeta('quizUnit', e.target.value)} />
+                            <LookupSelect
+                                label="Topic" category="topic" value={meta.quizTopic}
+                                options={lookups.topic}
+                                onChange={val => updateMeta('quizTopic', val)}
+                                onOptionsChanged={opts => setLookups(prev => ({ ...prev, topic: opts }))}
+                            />
+                            <LookupSelect
+                                label="Year" category="year" value={meta.quizYear}
+                                options={lookups.year}
+                                onChange={val => updateMeta('quizYear', val)}
+                                onOptionsChanged={opts => setLookups(prev => ({ ...prev, year: opts }))}
+                            />
+                            <LookupSelect
+                                label="Unit" category="unit" value={meta.quizUnit}
+                                options={lookups.unit}
+                                onChange={val => updateMeta('quizUnit', val)}
+                                onOptionsChanged={opts => setLookups(prev => ({ ...prev, unit: opts }))}
+                            />
                         </div>
                         <div className="form-group">
                             <label className="form-label">Description</label>
@@ -130,7 +153,7 @@ export default function NewMCQuiz() {
                 </div>
 
                 <div className="editor-toolbar">
-                    <h2 style={{ fontSize: 'var(--text-xl)', fontWeight: 700 }}>Questions</h2>
+                    <h2 className="editor-toolbar-title">Questions</h2>
                     <div className="flex gap-2">
                         <Button variant="ghost" size="sm" onClick={() => setImporting(true)}>Import</Button>
                         <Button variant="secondary" onClick={addQuestion}>+ Add question</Button>
@@ -140,13 +163,13 @@ export default function NewMCQuiz() {
                 <div className="editor-questions">
                     {questions.map((q, qIdx) => (
                         <div key={qIdx} className="mc-question-card-editor">
-                            <div className="flex-between" style={{ marginBottom: 12 }}>
-                                <span style={{ fontWeight: 600, color: 'var(--gray-500)', fontSize: 'var(--text-sm)' }}>
+                            <div className="flex-between mb-3">
+                                <span className="mc-question-meta-label">
                                     Question {qIdx + 1}
                                 </span>
                                 <Button variant="ghost" size="sm" iconOnly onClick={() => removeQuestion(qIdx)} disabled={questions.length === 1} title="Delete">🗑</Button>
                             </div>
-                            <div className="form-group" style={{ marginBottom: 12 }}>
+                            <div className="form-group mb-3">
                                 <input
                                     className="form-input"
                                     placeholder="Enter the question…"
@@ -167,7 +190,7 @@ export default function NewMCQuiz() {
                                     </div>
                                 ))}
                             </div>
-                            <div className="form-group" style={{ marginTop: 12 }}>
+                            <div className="form-group mt-3">
                                 <label className="form-label">Correct answer</label>
                                 <select
                                     className="form-select"

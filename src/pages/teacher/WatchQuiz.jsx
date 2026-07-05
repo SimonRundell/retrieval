@@ -54,7 +54,7 @@ export default function WatchQuiz() {
             <div className="watch-header">
                 <div>
                     <div className="watch-title">📺 {quizName || quizCode}</div>
-                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: 'var(--text-sm)', marginTop: 4 }}>
+                    <div className="watch-subtitle">
                         {students.length} student{students.length !== 1 ? 's' : ''} active
                     </div>
                 </div>
@@ -64,7 +64,7 @@ export default function WatchQuiz() {
                     <span className="watch-code-value">{quizCode}</span>
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+                <div className="watch-header-actions">
                     {session && (
                         <QuizTimer
                             startTime={session.startTime}
@@ -72,7 +72,7 @@ export default function WatchQuiz() {
                             large
                         />
                     )}
-                    <Link to="/teacher" style={{ color: 'rgba(255,255,255,0.5)', fontSize: 'var(--text-sm)' }}>
+                    <Link to="/teacher" className="watch-dashboard-link">
                         ← Dashboard
                     </Link>
                 </div>
@@ -84,7 +84,7 @@ export default function WatchQuiz() {
                 {!loading && students.length === 0 && (
                     <div className="watch-empty">
                         Waiting for students to join…<br />
-                        <span style={{ fontSize: 'var(--text-sm)', marginTop: 8, display: 'block' }}>
+                        <span className="watch-empty-hint">
                             Tell them to visit the site and enter code <strong>{quizCode}</strong>
                         </span>
                     </div>

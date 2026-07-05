@@ -103,4 +103,21 @@ CREATE TABLE `tblsession` (
   COLLATE=utf8mb4_unicode_ci
   ROW_FORMAT=DYNAMIC;
 
+-- ----------------------------
+-- tblLookup — standardised Subject / Topic / Year / Unit values
+-- Teachers pick from these lists in the quiz editor and dashboard filters,
+-- rather than typing free text, to keep quiz metadata consistent.
+-- ----------------------------
+DROP TABLE IF EXISTS `tblLookup`;
+CREATE TABLE `tblLookup` (
+    `id`       INT NOT NULL AUTO_INCREMENT,
+    `category` ENUM('subject','topic','year','unit') NOT NULL,
+    `value`    VARCHAR(100) NOT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_category_value` (`category`, `value`)
+) ENGINE=InnoDB
+  CHARACTER SET=utf8mb4
+  COLLATE=utf8mb4_unicode_ci
+  ROW_FORMAT=DYNAMIC;
+
 SET FOREIGN_KEY_CHECKS = 1;
