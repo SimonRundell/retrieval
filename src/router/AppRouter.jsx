@@ -7,6 +7,7 @@ import CMFloatAd from '../cmFloatAd';
 import StudentEntry      from '../pages/student/StudentEntry';
 import QuizPlayer        from '../pages/student/QuizPlayer';
 import TeacherLogin      from '../pages/teacher/TeacherLogin';
+import TeacherRegister   from '../pages/teacher/TeacherRegister';
 import TeacherDashboard  from '../pages/teacher/TeacherDashboard';
 import QuizTypeSelect    from '../pages/teacher/QuizTypeSelect';
 import NewMatchQuiz      from '../pages/teacher/NewMatchQuiz';
@@ -25,7 +26,8 @@ export default function AppRouter() {
                         <Route path="/quiz/:quizCode" element={<QuizPlayer />} />
 
                         {/* Teacher auth */}
-                        <Route path="/teacher/login" element={<TeacherLogin />} />
+                        <Route path="/teacher/login"    element={<TeacherLogin />} />
+                        <Route path="/teacher/register" element={<TeacherRegister />} />
 
                         {/* Teacher (protected) */}
                         <Route path="/teacher" element={

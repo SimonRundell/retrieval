@@ -36,6 +36,7 @@ A projector-friendly **Watch** view lets the teacher display a live leaderboard 
 │   ├── .htaccess               Passes Authorization header through Apache
 │   ├── setup.php               Shared bootstrap: DB, JWT helpers, response utilities
 │   ├── getLogin.php            Teacher login, returns JWT
+│   ├── registerTeacher.php     Self-service teacher registration, returns JWT
 │   ├── getAllQuizzes.php        List all quizzes (teacher dashboard)
 │   ├── getQuiz.php             Fetch a single quiz by code
 │   ├── insertQuiz.php          Create a new quiz (JWT required)
@@ -77,7 +78,7 @@ A projector-friendly **Watch** view lets the teacher display a live leaderboard 
     │   └── quiz/               Quiz-specific components (boards, timer, score modal, LookupSelect)
     └── pages/
         ├── student/            StudentEntry, QuizPlayer
-        └── teacher/            Login, Dashboard, quiz editors, WatchQuiz, ManageLookupsModal
+        └── teacher/            Login, Register, Dashboard, quiz editors, WatchQuiz, ManageLookupsModal
 ```
 
 ---
@@ -233,6 +234,7 @@ Each set contains up to four question/answer pairs. The player works through one
 | Path | Description |
 | --- | --- |
 | `/teacher/login` | Login form |
+| `/teacher/register` | Self-service registration form for new teacher accounts |
 | `/teacher` | Dashboard -- list of all quizzes with edit and launch actions |
 | `/teacher/quiz/new` | Choose quiz type |
 | `/teacher/quiz/new/match` | Create a Match Definitions quiz |
@@ -249,6 +251,7 @@ All endpoints accept `Content-Type: application/json` via POST. Protected endpoi
 | Endpoint | Auth | Description |
 | --- | --- | --- |
 | `POST /api/getLogin.php` | None | Returns a JWT on successful teacher login |
+| `POST /api/registerTeacher.php` | None | Creates a new teacher account (`teacher = 1`, `admin = 0`) and returns a JWT, logging the new teacher straight in |
 | `POST /api/getAllQuizzes.php` | None | Returns all quizzes as a JSON array |
 | `POST /api/getQuiz.php` | None | Returns one quiz by `quizCode` |
 | `POST /api/insertQuiz.php` | Teacher JWT | Creates a new quiz |
@@ -278,6 +281,8 @@ All endpoints accept `Content-Type: application/json` via POST. Protected endpoi
 ## Authentication
 
 Teachers log in with email and password (stored as MD5 hashes in `tbluser.passwordHash`). On success, `getLogin.php` issues a JWT signed with HS256, valid for 24 hours. The token is stored in `localStorage` and injected as a `Bearer` header on every Axios request by `src/hooks/useApi.js`.
+
+New teachers can self-register from `/teacher/register` (linked from the login page). `registerTeacher.php` creates the account with `teacher = 1, admin = 0` -- self-registration can never grant admin rights, only an existing admin can promote an account via **User Management** on the dashboard. Registration rejects duplicate emails (409) and, like login, logs the new teacher straight in with a JWT.
 
 JWT verification is handled in `api/setup.php` using PHP's built-in `hash_hmac()` function. No Composer or external library is required.
 
@@ -352,6 +357,10 @@ Subject, Topic, Year and Unit are no longer free-text fields. Each is backed by 
 ---
 
 ## Changelog
+
+### 0.1.4 — 2026-09-02
+
+- **Teacher self-registration.** New `/teacher/register` page lets a teacher create their own account without an admin having to add them first. New endpoint `registerTeacher.php` mirrors the existing `adminAddUser.php` conventions (duplicate-email check, prepared statements) but is public and hardcodes `teacher = 1, admin = 0`, so self-registration can never grant admin rights. On success the new teacher is logged straight in, same as `getLogin.php`. The login page now links to the new registration form, and vice versa.
 
 ### 0.1.3 — 2026-07-05
 

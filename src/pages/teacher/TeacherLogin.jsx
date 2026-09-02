@@ -76,6 +76,9 @@ export default function TeacherLogin() {
                 </form>
 
                 <p className="login-back-link">
+                    New teacher? <Link to="/teacher/register">Create an account</Link>
+                </p>
+                <p className="login-back-link">
                     <Link to="/">← Back to student entry</Link>
                 </p>
             </div>
